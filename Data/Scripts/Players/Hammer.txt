@@ -1,0 +1,106 @@
+// ----------------------------------
+// RSDK Project: Sonic 1
+// Script Description: Hammer Object
+// Script Author: ProdNW
+// ----------------------------------
+
+// ========================
+// Aliases
+// ========================
+
+private alias object.value0 : object.contentsPos.y
+private alias object.value1 : object.health
+private alias object.value2 : object.timer
+
+// Player Aliases
+private alias object.direction : player.direction
+private alias object.value19 : player.badnikBonus
+
+// Broken Monitor Aliases
+private alias 0 : MONITOR_STATE_RISE
+
+
+// ========================
+// Events
+// ========================
+
+event ObjectUpdate
+	object.xpos += object.xvel
+	object.ypos += object.yvel
+
+	object.yvel += 0x1900
+
+	object.timer++
+	if object.timer > 2
+		object.timer = 0
+		
+		object.frame++
+		if object.frame > 7
+			object.frame = 0
+		end if
+	end if
+
+	if object.outOfBounds == true
+		object.type = TypeName[Blank Object]
+	end if
+
+	// Check hits
+	foreach (TypeName[Monitor], arrayPos0, ALL_ENTITIES)
+		// See if the Hammer has collided with the monitor
+		BoxCollisionTest(C_TOUCH, object.entityPos, -16, -16, 16, 16, arrayPos0, C_BOX, C_BOX, C_BOX, C_BOX)
+		if checkResult == true
+			// Start resetting this object
+			object[arrayPos0].state = MONITOR_STATE_RISE
+
+			// Create and setup the smoke puff
+			CreateTempObject(TypeName[Smoke Puff], 0, object[arrayPos0].xpos, object[arrayPos0].ypos)
+			object[tempObjectPos].drawOrder = 4
+
+			// Switch this item to the broken variant
+			object[arrayPos0].type = TypeName[Broken Monitor]
+
+			if object[arrayPos0].priority != PRIORITY_XBOUNDS_DESTROY
+				object[arrayPos0].priority = PRIORITY_ACTIVE
+			end if
+
+			// Setup the alpha for the icon fading
+			object[arrayPos0].alpha = 0x100
+
+			object[arrayPos0].contentsPos.y = object[arrayPos0].ypos
+			object[arrayPos0].timer = -0x30000
+
+			PlaySfx(SfxName[Destroy], false)
+		end if
+	next
+end event
+
+
+event ObjectDraw
+	DrawSpriteFX(object.frame, FX_FLIP, object.xpos, object.ypos)
+end event
+
+
+event ObjectStartup
+	LoadSpriteSheet("Players/Amy4.gif")
+	SpriteFrame(-12, -8, 23, 19, 1, 38)
+	SpriteFrame(-16, -15, 24, 23, 25, 38)
+	SpriteFrame(-9, -13, 19, 23, 50, 38)
+	SpriteFrame(-7, -17, 23, 24, 70, 38)
+	SpriteFrame(-10, -9, 23, 19, 94, 38)
+	SpriteFrame(-7, -7, 24, 23, 118, 38)
+	SpriteFrame(-8, -7, 19, 23, 143, 38)
+	SpriteFrame(-14, -7, 23, 25, 163, 38)
+end event
+
+
+event RSDKDraw
+	DrawSprite(0)
+end event
+
+
+event RSDKLoad
+	LoadSpriteSheet("Global/Items2.gif")
+	SpriteFrame(-16, -16, 32, 32, 1, 84)
+	
+	SetVariableAlias(ALIAS_VAR_PROPVAL, "unused")
+end event

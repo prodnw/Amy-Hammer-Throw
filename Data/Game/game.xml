@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<game xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <title />
+  <palette />
+  <objects>
+    <object name="Hammer" script="Players/Hammer.txt" forceLoad="false" />
+  </objects>
+  <variables />
+  <sounds>
+    <soundfx name="Hammer Throw" path="Global/HammerThrow.wav" />
+  </sounds>
+  <players>
+    <player name="Blank" />
+    <player name="AMY" />
+    <player name="AMY AND TAILS" />
+  </players>
+  <presentationStages />
+  <regularStages />
+  <specialStages />
+  <bonusStages />
+</game>
