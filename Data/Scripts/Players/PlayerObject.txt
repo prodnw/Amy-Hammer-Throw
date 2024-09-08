@@ -3238,15 +3238,17 @@ public function Player_State_Ground
 
 					CreateTempObject(TypeName[Hammer], 0, object.xpos, object.ypos)
 					
-					object[tempObjectPos].yvel = -0x50000
-					
-					if player[0].direction == FACING_RIGHT
-						object[tempObjectPos].xvel = 0x20000
-						object[tempObjectPos].direction = FLIP_NONE
-					else
-						object[tempObjectPos].xvel = -0x20000
-						object[tempObjectPos].direction = FLIP_X
-					end if
+					// xvel
+					Cos256(temp0, -46)
+					temp0 *= 0x60000
+					temp0 >>= 8
+					object[arrayPos].xvel = temp0
+
+					// yvel
+					Sin256(temp1, -46)
+					temp1 *= 0x60000
+					temp1 >>= 8
+					object[arrayPos].yvel = temp1
 				end if
 			end if
 		end if

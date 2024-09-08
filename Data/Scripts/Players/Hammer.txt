@@ -1,7 +1,7 @@
 // ----------------------------------
 // RSDK Project: Sonic 1
 // Script Description: Hammer Object
-// Script Author: ProdNW
+// Script Author: JD & ProdNW
 // ----------------------------------
 
 // ========================
@@ -11,6 +11,8 @@
 private alias object.value0 : object.contentsPos.y
 private alias object.value1 : object.health
 private alias object.value2 : object.timer
+private alias object.value3 : object.airVelocity
+private alias object.value4 : object.unknown
 
 // Player Aliases
 private alias object.direction : player.direction
@@ -25,24 +27,27 @@ private alias 0 : MONITOR_STATE_RISE
 // ========================
 
 event ObjectUpdate
-	object.xpos += object.xvel
-	object.ypos += object.yvel
+    if object.unknown == false
+        object.yvel += object.airVelocity
+        object.xpos += object.xvel
+        object.ypos += object.yvel
+        object.ypos += object.airVelocity
 
-	object.yvel += 0x1900
+        // check if the object is on screen, and then animate it
+		if object.outOfBounds == false
+			object.timer++
+			if object.timer > 3
+				object.timer = 0
 
-	object.timer++
-	if object.timer > 2
-		object.timer = 0
-		
-		object.frame++
-		if object.frame > 7
-			object.frame = 0
+				object.frame++
+				if object.frame > 7
+					object.frame = 0
+				end if
+			end if
+		else // if it isn't, destroy the object
+			object.type = TypeName[Blank Object]
 		end if
-	end if
-
-	if object.outOfBounds == true
-		object.type = TypeName[Blank Object]
-	end if
+    end if
 
 	// Check hits
 	foreach (TypeName[Monitor], arrayPos0, ALL_ENTITIES)
@@ -90,6 +95,20 @@ event ObjectStartup
 	SpriteFrame(-7, -7, 24, 23, 118, 38)
 	SpriteFrame(-8, -7, 19, 23, 143, 38)
 	SpriteFrame(-14, -7, 23, 25, 163, 38)
+
+	foreach (TypeName[Hammer], arrayPos0, ALL_ENTITIES)
+		object[arrayPos0].priority = PRIORITY_ACTIVE
+		object[arrayPos0].drawOrder = 5 // inaccurate, check Zone->objectDrawGroup[1] in mania decomp
+		object[arrayPos0].inkEffect = INK_ALPHA
+		object[arrayPos0].alpha = 0xA0
+
+        // unsure if this is a thing in v4
+        // this->drawFX     = FX_FLIP;
+
+        object[arrayPos].direction = player[0].direction
+
+        object[arrayPos].airVelocity = 0x3800
+	next
 end event
 
 
