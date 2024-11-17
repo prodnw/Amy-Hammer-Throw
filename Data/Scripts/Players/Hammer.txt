@@ -33,6 +33,11 @@ event ObjectUpdate
         object.ypos += object.yvel
         object.ypos += object.airVelocity
 
+		object.priority = PRIORITY_ACTIVE
+		object.drawOrder = 5 // inaccurate, check Zone->objectDrawGroup[1] in mania decomp
+        object.direction = player[0].direction
+		object.airVelocity = 0x3800
+
         // check if the object is on screen, and then animate it
 		if object.outOfBounds == false
 			object.timer++
@@ -95,20 +100,6 @@ event ObjectStartup
 	SpriteFrame(-7, -7, 24, 23, 118, 38)
 	SpriteFrame(-8, -7, 19, 23, 143, 38)
 	SpriteFrame(-14, -7, 23, 25, 163, 38)
-
-	foreach (TypeName[Hammer], arrayPos0, ALL_ENTITIES)
-		object[arrayPos0].priority = PRIORITY_ACTIVE
-		object[arrayPos0].drawOrder = 5 // inaccurate, check Zone->objectDrawGroup[1] in mania decomp
-		object[arrayPos0].inkEffect = INK_ALPHA
-		object[arrayPos0].alpha = 0xA0
-
-        // unsure if this is a thing in v4
-        // this->drawFX     = FX_FLIP;
-
-        object[arrayPos].direction = player[0].direction
-
-        object[arrayPos].airVelocity = 0x3800
-	next
 end event
 
 

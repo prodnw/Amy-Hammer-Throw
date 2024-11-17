@@ -5,7 +5,10 @@
   <objects>
     <object name="Hammer" script="Players/Hammer.txt" forceLoad="false" />
   </objects>
-  <variables />
+  <variables>
+    <variable name="ANI_HAMMER_THROW" value="41" />
+    <variable name="player.hammerTimer" value="0" />
+  </variables>
   <sounds>
     <soundfx name="Hammer Throw" path="Global/HammerThrow.wav" />
   </sounds>

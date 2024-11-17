@@ -277,10 +277,7 @@ private alias object.value0 : goggles.targetPlayer
 private alias object.value0 : object.ledgePullFlag
 
 // Title Card aliases
-private alias 8 : TITLECARD_FADETOTITLE
-
-// Animation IDs
-private alias 41 : ANI_HAMMER_THROW
+private alias 8 : TITLECARD_FADETOTITLE 
 
 
 // ========================
@@ -361,6 +358,7 @@ reserve function Player_TryTransform
 reserve function Player_State_BubbleBounce
 reserve function Player_Action_DblJumpSonic
 reserve function Player_HandleFlyCarry
+reserve function Player_State_HammerThrow
 reserve function Player_Action_HammerThrow
 
 
@@ -3232,23 +3230,32 @@ public function Player_State_Ground
 			if Player_superState == SUPERSTATE_SUPER
 				if keyPress[0].buttonY == true
 					player.timer = 0
-					player.state = Player_Action_HammerThrow
+					player.state = Player_State_HammerThrow
 
 					PlaySfx(SfxName[Hammer Throw], false)
 
 					CreateTempObject(TypeName[Hammer], 0, object.xpos, object.ypos)
 					
 					// xvel
-					Cos256(temp0, -46)
-					temp0 *= 0x60000
-					temp0 >>= 8
-					object[arrayPos].xvel = temp0
+					if player[0].direction == FACING_RIGHT
+						Cos256(temp0, -46)
+						temp0 *= 0x60000
+						temp0 >>= 8
+						object[tempObjectPos].xvel = temp0
+					end if
+				
+					if player[0].direction == FACING_LEFT
+						Cos256(temp0, -46)
+						temp0 *= -0x60000
+						temp0 >>= 8
+						object[tempObjectPos].xvel = temp0
+					end if
 
 					// yvel
 					Sin256(temp1, -46)
-					temp1 *= 0x60000
+					temp1 *= -0x60000
 					temp1 >>= 8
-					object[arrayPos].yvel = temp1
+					object[tempObjectPos].yvel = temp1
 				end if
 			end if
 		end if
@@ -3539,21 +3546,33 @@ public function Player_State_Air
 		if stage.playerListPos == PLAYER_AMY_A
 			if Player_superState == SUPERSTATE_SUPER
 				if keyPress[0].buttonY == true
-					player.state = Player_Action_HammerThrow
 					player.timer = 0
-					CreateTempObject(TypeName[Hammer], 0, object.xpos, object.ypos)
+					player.state = Player_State_HammerThrow
 
 					PlaySfx(SfxName[Hammer Throw], false)
 
-					object[tempObjectPos].yvel = -0x20000
+					CreateTempObject(TypeName[Hammer], 0, object.xpos, object.ypos)
 					
+					// xvel
 					if player[0].direction == FACING_RIGHT
-						object[tempObjectPos].xvel = 0x20000
-						object[tempObjectPos].direction = FLIP_NONE
-					else
-						object[tempObjectPos].xvel = -0x20000
-						object[tempObjectPos].direction = FLIP_X
+						Cos256(temp0, -46)
+						temp0 *= 0x60000
+						temp0 >>= 8
+						object[tempObjectPos].xvel = temp0
 					end if
+				
+					if player[0].direction == FACING_LEFT
+						Cos256(temp0, -46)
+						temp0 *= -0x60000
+						temp0 >>= 8
+						object[tempObjectPos].xvel = temp0
+					end if
+
+					// yvel
+					Sin256(temp1, -46)
+					temp1 *= -0x60000
+					temp1 >>= 8
+					object[tempObjectPos].yvel = temp1
 				end if
 			end if
 		end if
@@ -5688,24 +5707,33 @@ public function Player_State_ContinueRun
 end function
 
 
+#platform: USE_ORIGINS
+public function Player_State_HammerThrow
+	if player.gravity == GRAVITY_GROUND
+		if player.speed == 0
+			player.animation = ANI_HAMMER_THROW
+		end if
+	end if
+	player.state = Player_Action_HammerThrow
+end function
+
+
 public function Player_Action_HammerThrow
 	if player.gravity == GRAVITY_AIR
 		CallFunction(Player_HandleAirFriction)
 		CallFunction(Player_HandleAirMovement)
 	else
-		player.timer++
-		if player.timer > 12
-			player.timer = 0
+		player.hammerTimer++
+		if player.hammerTimer > 12
+			player.hammerTimer = 0
 			player.state = Player_State_Ground
 		end if
 
-		if player.speed == 0
-			player.animation = ANI_HAMMER_THROW
-		end if
-
 		CallFunction(Player_HandleOnGround)
+		player.skidding = 0
 	end if
 end function
+#endplatform
 
 
 // ========================
